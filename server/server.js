@@ -20,29 +20,62 @@ export const io=new Server(server,{
 
 //store online users
 
-export const userSocketMap={}; //{userId:socketId}
+// export const userSocketMap={}; //{userId:socketId}
 
 
-//socket.io connection handler
+// //socket.io connection handler
 
-io.on('connection',(socket)=>{
+// io.on('connection',(socket)=>{
 
-    const userId=socket.handshake.query.userId;
-    console.log('User Connected',userId);
+//     const userId=socket.handshake.query.userId;
+//     console.log('User Connected',userId);
 
-    if(userId) userSocketMap[userId]=socket.id;
+//     if(userId) userSocketMap[userId]=socket.id;
 
-    //emit online users to all connected clients
+//     //emit online users to all connected clients
 
-    io.emit('getOnlineUsers',Object.keys(userSocketMap));
+//     io.emit('getOnlineUsers',Object.keys(userSocketMap));
 
-    socket.on('disconnect',()=>{
-        console.log('User Disconnected',userId)
-        delete userSocketMap[userId];
-        io.emit('getOnlineUsers',Object.keys(userSocketMap))
-    })
+//     socket.on('disconnect',()=>{
+//         console.log('User Disconnected',userId)
+//         delete userSocketMap[userId];
+//         io.emit('getOnlineUsers',Object.keys(userSocketMap))
+//     })
 
-})
+// })
+
+// store online users (userId => Set of socketIds)
+export const userSocketMap = {}; 
+
+io.on('connection', (socket) => {
+    const userId = socket.handshake.query.userId;
+    console.log('User Connected:', userId, socket.id);
+
+    if (userId) {
+        if (!userSocketMap[userId]) {
+            userSocketMap[userId] = new Set();
+        }
+        userSocketMap[userId].add(socket.id);
+    }
+
+    // emit online users
+    io.emit('getOnlineUsers', Object.keys(userSocketMap));
+
+    socket.on('disconnect', () => {
+        console.log('User Disconnected:', userId, socket.id);
+
+        if (userId && userSocketMap[userId]) {
+            userSocketMap[userId].delete(socket.id);
+
+            if (userSocketMap[userId].size === 0) {
+                delete userSocketMap[userId];
+            }
+        }
+
+        io.emit('getOnlineUsers', Object.keys(userSocketMap));
+    });
+});
+
 
 //middleware setup
 

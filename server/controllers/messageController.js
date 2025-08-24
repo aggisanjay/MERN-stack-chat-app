@@ -52,7 +52,7 @@ export const getMessages=async(req,res)=>{
             ]
         })
 
-        await Message.updateMany({senderId:selectedUserId,recieverId:myId},{seen:true});
+        await Message.updateMany({senderId:selectedUserId,receiverId:myId},{seen:true});
 
         res.json({success:true,messages})
         

@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 const ChatContainer = () => {
 
 
-  const {messages,selectedUser,setSelectedUser,sendMessage,getMessages}=useContext(ChatContext)
+  const {messages,setMessages,selectedUser,setSelectedUser,sendMessage,getMessages}=useContext(ChatContext)
   const {authUser,onlineUsers}=useContext(AuthContext)
 
   const scrollEnd=useRef()
@@ -41,11 +41,21 @@ const ChatContainer = () => {
 
   }
 
+  // useEffect(()=>{
+  //   if(selectedUser){
+  //     getMessages(selectedUser._id)
+  //   }
+  // },[selectedUser])
   useEffect(()=>{
-    if(selectedUser){
-      getMessages(selectedUser._id)
-    }
-  },[selectedUser])
+  if(selectedUser){
+    // Mark messages seen locally right away
+    setMessages(prev =>
+      prev.map(msg => ({ ...msg, seen: true }))
+    );
+    // Then call backend
+    getMessages(selectedUser._id)
+  }
+}, [selectedUser]);
 
   useEffect(()=>{
     if(scrollEnd.current && messages){

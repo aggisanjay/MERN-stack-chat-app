@@ -4,8 +4,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon srever.js",
-    "start": "node server.js"
+    "dev": "node init && nodemon srever.js",
+    "start": "node init && node server.js"
   },
   "keywords": [],
   "author": "",
